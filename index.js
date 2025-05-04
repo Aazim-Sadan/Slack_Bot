@@ -143,8 +143,9 @@ slackApp.view('approval_modal', async ({ ack, body, view, client }) => {
   });
 });
 
+
 // Approve Action
-slackApp.action('approve_action', async ({ ack, body, client }) => {
+slackApp.action('approve_action', async ({ ack, body, client, respond }) => {
   await ack();
   const { requesterId } = JSON.parse(body.actions[0].value);
   const approverId = body.user.id;
@@ -160,10 +161,18 @@ slackApp.action('approve_action', async ({ ack, body, client }) => {
     channel: requesterId,
     text: `✅ Your approval request was *approved* by <@${approverId}>.`,
   });
+
+  // Replace ephemeral message with confirmation
+  await respond({
+    response_type: 'ephemeral',
+    replace_original: true,
+    text: `✅ You have approved <@${requesterId}>'s request.`,
+  });
 });
 
+
 // Reject Action
-slackApp.action('reject_action', async ({ ack, body, client }) => {
+slackApp.action('reject_action', async ({ ack, body, client, respond }) => {
   await ack();
   const { requesterId } = JSON.parse(body.actions[0].value);
   const approverId = body.user.id;
@@ -179,7 +188,15 @@ slackApp.action('reject_action', async ({ ack, body, client }) => {
     channel: requesterId,
     text: `❌ Your approval request was *rejected* by <@${approverId}>.`,
   });
+
+  // Replace ephemeral message with confirmation
+  await respond({
+    response_type: 'ephemeral',
+    replace_original: true,
+    text: `❌ You have rejected <@${requesterId}>'s request.`,
+  });
 });
+
 
 // Start server
 (async () => {
